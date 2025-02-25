@@ -24,10 +24,12 @@ jobs:
         run: pip install dbt-core dbt-bigquery
 
       - name: Ensure .dbt Directory Exists
-        run: mkdir -p $HOME/.dbt
+        run: mkdir -p $HOME/.dbt && echo "✅ $HOME/.dbt directory created"
 
       - name: Set up dbt profiles.yml
-        run: echo "${{ secrets.DBT_PROFILES_YML }}" | base64 --decode > $HOME/.dbt/profiles.yml
+        run: |
+          echo "${{ secrets.DBT_PROFILES_YML }}" | base64 --decode > $HOME/.dbt/profiles.yml
+          echo "✅ profiles.yml written to $HOME/.dbt"
 
       - name: Debug: Check if ~/.dbt exists
         run: |
@@ -41,7 +43,7 @@ jobs:
 
       - name: Debug: Check profiles.yml file contents
         run: |
-          if [[ -s "$HOME/.dbt/profiles.yml" ]]; then
+          if [ -s "$HOME/.dbt/profiles.yml" ]; then
             cat $HOME/.dbt/profiles.yml
             echo "✅ profiles.yml exists and is not empty!"
           else
@@ -75,10 +77,12 @@ jobs:
         run: pip install dbt-core dbt-bigquery
 
       - name: Ensure .dbt Directory Exists
-        run: mkdir -p $HOME/.dbt
+        run: mkdir -p $HOME/.dbt && echo "✅ $HOME/.dbt directory created"
 
       - name: Set up dbt profiles.yml
-        run: echo "${{ secrets.DBT_PROFILES_YML }}" | base64 --decode > $HOME/.dbt/profiles.yml
+        run: |
+          echo "${{ secrets.DBT_PROFILES_YML }}" | base64 --decode > $HOME/.dbt/profiles.yml
+          echo "✅ profiles.yml written to $HOME/.dbt"
 
       - name: Debug: Check if ~/.dbt exists
         run: |
@@ -92,7 +96,7 @@ jobs:
 
       - name: Debug: Check profiles.yml file contents
         run: |
-          if [[ -s "$HOME/.dbt/profiles.yml" ]]; then
+          if [ -s "$HOME/.dbt/profiles.yml" ]; then
             cat $HOME/.dbt/profiles.yml
             echo "✅ profiles.yml exists and is not empty!"
           else
@@ -110,4 +114,8 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
 
       - name: Deploy dbt Models to BigQuery
-        if: github.event_name ==
+        if: github.event_name == 'push'
+        run: dbt run --target prod
+        env:
+          DBT_PROFILES_DIR: $HOME/.dbt
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
