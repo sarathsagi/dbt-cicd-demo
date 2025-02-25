@@ -41,4 +41,4 @@ jobs:
         if: github.event_name == 'push'
         run: dbt run --target prod --profiles-dir ${{ env.HOME }}/.dbt
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}# Latest workflow test
