@@ -23,23 +23,26 @@ jobs:
 
       - name: Ensure .dbt Directory Exists
         run: |
-          mkdir -p ~/.dbt
-          echo "✅ ~/.dbt directory created"
+          mkdir -p $HOME/.dbt
+          echo "✅ $HOME/.dbt directory created"
 
       - name: Set up dbt profiles.yml
         run: |
-          echo "${{ secrets.DBT_PROFILES_YML }}" | base64 --decode > ~/.dbt/profiles.yml
-          echo "✅ profiles.yml written to ~/.dbt"
+          echo "${{ secrets.DBT_PROFILES_YML }}" | base64 --decode > $HOME/.dbt/profiles.yml
+          echo "✅ profiles.yml written to $HOME/.dbt"
 
       - name: Verify profiles.yml Exists
         run: |
-          ls -al ~/.dbt  # Check if directory exists
-          cat ~/.dbt/profiles.yml  # Output file contents to confirm it's not empty
+          ls -al $HOME/.dbt  # Check if directory exists
+          cat $HOME/.dbt/profiles.yml  # Output file contents to confirm it's not empty
+
+      - name: Explicitly Set DBT_PROFILES_DIR
+        run: echo "DBT_PROFILES_DIR=$HOME/.dbt" >> $GITHUB_ENV
 
       - name: Execute dbt Tests
         run: dbt test
         env:
-          DBT_PROFILES_DIR: ~/.dbt
+          DBT_PROFILES_DIR: $HOME/.dbt
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
 
   dbt_build:
@@ -58,28 +61,31 @@ jobs:
 
       - name: Ensure .dbt Directory Exists
         run: |
-          mkdir -p ~/.dbt
-          echo "✅ ~/.dbt directory created"
+          mkdir -p $HOME/.dbt
+          echo "✅ $HOME/.dbt directory created"
 
       - name: Set up dbt profiles.yml
         run: |
-          echo "${{ secrets.DBT_PROFILES_YML }}" | base64 --decode > ~/.dbt/profiles.yml
-          echo "✅ profiles.yml written to ~/.dbt"
+          echo "${{ secrets.DBT_PROFILES_YML }}" | base64 --decode > $HOME/.dbt/profiles.yml
+          echo "✅ profiles.yml written to $HOME/.dbt"
 
       - name: Verify profiles.yml Exists
         run: |
-          ls -al ~/.dbt  # Check if directory exists
-          cat ~/.dbt/profiles.yml  # Output file contents to confirm it's not empty
+          ls -al $HOME/.dbt  # Check if directory exists
+          cat $HOME/.dbt/profiles.yml  # Output file contents to confirm it's not empty
+
+      - name: Explicitly Set DBT_PROFILES_DIR
+        run: echo "DBT_PROFILES_DIR=$HOME/.dbt" >> $GITHUB_ENV
 
       - name: Build dbt Models
         run: dbt build
         env:
-          DBT_PROFILES_DIR: ~/.dbt
+          DBT_PROFILES_DIR: $HOME/.dbt
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
 
       - name: Deploy dbt Models to BigQuery
         if: github.event_name == 'push'
         run: dbt run --target prod
         env:
-          DBT_PROFILES_DIR: ~/.dbt
+          DBT_PROFILES_DIR: $HOME/.dbt
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
