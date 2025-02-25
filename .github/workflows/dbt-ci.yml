@@ -1,44 +1,44 @@
-name: dbt CI/CD  
+name: dbt CI/CD
 
-on:  
-  push:  
-    branches: [ "main" ]  
-  pull_request:  
-    branches: [ "main" ]  
-  workflow_dispatch:  # Allows manual trigger in GitHub UI  
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:  # Allows manual trigger in GitHub UI
 
-jobs:  
-  dbt-pipeline:  
-    name: Run dbt CI/CD Pipeline  
-    runs-on: ubuntu-latest  
-    steps:  
-      - uses: actions/checkout@v4  
-      - uses: actions/setup-python@v4  
-        with:  
-          python-version: '3.11'  
-      - name: Install dbt  
-        run: pip install dbt-core dbt-bigquery  
-      - name: Create .dbt Directory  
-        run: mkdir -p ${{ env.HOME }}/.dbt  
-      - name: Write profiles.yml from Secret  
-        run: |  
-          echo "${{ secrets.DBT_PROFILES_YML }}" | base64 -d > ${{ env.HOME }}/.dbt/profiles.yml  
-        env:  
-          DBT_PROFILES_YML: ${{ secrets.DBT_PROFILES_YML }}  
-      - name: Verify profiles.yml  
-        run: |  
-          ls -al ${{ env.HOME }}/.dbt  
-          cat ${{ env.HOME }}/.dbt/profiles.yml  
-      - name: Run dbt Tests  
-        run: dbt test --profiles-dir ${{ env.HOME }}/.dbt  
-        env:  
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}  
-      - name: Build dbt Models  
-        run: dbt build --profiles-dir ${{ env.HOME }}/.dbt  
-        env:  
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}  
-      - name: Deploy dbt Models to BigQuery  
-        if: github.event_name == 'push'  
-        run: dbt run --target prod --profiles-dir ${{ env.HOME }}/.dbt  
-        env:  
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}  
+jobs:
+  dbt-pipeline:
+    name: Run dbt CI/CD Pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dbt
+        run: pip install dbt-core dbt-bigquery
+      - name: Create .dbt Directory
+        run: mkdir -p ${{ env.HOME }}/.dbt
+      - name: Write profiles.yml from Secret
+        run: |
+          echo "${{ secrets.DBT_PROFILES_YML }}" | base64 -d > ${{ env.HOME }}/.dbt/profiles.yml
+        env:
+          DBT_PROFILES_YML: ${{ secrets.DBT_PROFILES_YML }}
+      - name: Verify profiles.yml
+        run: |
+          ls -al ${{ env.HOME }}/.dbt
+          cat ${{ env.HOME }}/.dbt/profiles.yml
+      - name: Run dbt Tests
+        run: dbt test --profiles-dir ${{ env.HOME }}/.dbt
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+      - name: Build dbt Models
+        run: dbt build --profiles-dir ${{ env.HOME }}/.dbt
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+      - name: Deploy dbt Models to BigQuery
+        if: github.event_name == 'push'
+        run: dbt run --target prod --profiles-dir ${{ env.HOME }}/.dbt
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
