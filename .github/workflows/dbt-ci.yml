@@ -27,12 +27,15 @@ jobs:
         run: |
           echo "${{ secrets.DBT_PROFILES_YML }}" | base64 --decode > ~/.dbt/profiles.yml
 
-      - name: Verify profiles.yml
-        run: cat ~/.dbt/profiles.yml  # Debugging step, can be removed later
+      - name: Verify profiles.yml Exists
+        run: |
+          ls -al ~/.dbt
+          cat ~/.dbt/profiles.yml  # Check if file is correctly created
 
       - name: Execute dbt Tests
         run: dbt test
         env:
           DBT_PROFILES_DIR: ~/.dbt
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+
 
