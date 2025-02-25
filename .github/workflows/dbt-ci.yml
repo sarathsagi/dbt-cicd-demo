@@ -30,7 +30,14 @@ jobs:
         run: echo "${{ secrets.DBT_PROFILES_YML }}" | base64 --decode > $HOME/.dbt/profiles.yml
 
       - name: Debug: Check if ~/.dbt exists
-        run: ls -al $HOME/.dbt || echo "❌ ~/.dbt directory NOT found!"
+        run: |
+          if [ -d "$HOME/.dbt" ]; then
+            ls -al $HOME/.dbt
+            echo "✅ ~/.dbt directory exists!"
+          else
+            echo "❌ ~/.dbt directory NOT found!"
+            exit 1
+          fi
 
       - name: Debug: Check profiles.yml file contents
         run: |
@@ -74,7 +81,14 @@ jobs:
         run: echo "${{ secrets.DBT_PROFILES_YML }}" | base64 --decode > $HOME/.dbt/profiles.yml
 
       - name: Debug: Check if ~/.dbt exists
-        run: ls -al $HOME/.dbt || echo "❌ ~/.dbt directory NOT found!"
+        run: |
+          if [ -d "$HOME/.dbt" ]; then
+            ls -al $HOME/.dbt
+            echo "✅ ~/.dbt directory exists!"
+          else
+            echo "❌ ~/.dbt directory NOT found!"
+            exit 1
+          fi
 
       - name: Debug: Check profiles.yml file contents
         run: |
@@ -96,8 +110,4 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
 
       - name: Deploy dbt Models to BigQuery
-        if: github.event_name == 'push'
-        run: dbt run --target prod
-        env:
-          DBT_PROFILES_DIR: $HOME/.dbt
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+        if: github.event_name ==
