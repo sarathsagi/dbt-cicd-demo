@@ -1,3 +1,12 @@
+name: dbt CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:  # Allows manual trigger in GitHub UI
+
 jobs:
   dbt_test:
     name: Run dbt Tests
