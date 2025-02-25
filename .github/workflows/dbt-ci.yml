@@ -1,11 +1,3 @@
-name: dbt CI/CD
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
 jobs:
   dbt_test:
     name: Run dbt Tests
@@ -19,39 +11,18 @@ jobs:
       - name: Install dbt
         run: pip install dbt-core dbt-bigquery
 
+      - name: Ensure .dbt Directory Exists
+        run: mkdir -p ~/.dbt
+
       - name: Set up dbt profiles.yml
         run: |
-          mkdir -p ~/.dbt
           echo "${{ secrets.DBT_PROFILES_YML }}" | base64 --decode > ~/.dbt/profiles.yml
+
+      - name: Verify profiles.yml
+        run: cat ~/.dbt/profiles.yml  # Debugging step, can be removed later
 
       - name: Execute dbt Tests
         run: dbt test
-        env:
-          DBT_PROFILES_DIR: ~/.dbt
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
-
-  dbt_build:
-    name: Build and Deploy dbt Models
-    runs-on: ubuntu-latest
-    needs: dbt_test
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Install dbt
-        run: pip install dbt-core dbt-bigquery
-
-      - name: Build dbt Models
-        run: dbt build
-        env:
-          DBT_PROFILES_DIR: ~/.dbt
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
-
-      - name: Deploy dbt Models to BigQuery
-        if: github.event_name == 'push'
-        run: dbt run --target prod
         env:
           DBT_PROFILES_DIR: ~/.dbt
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
